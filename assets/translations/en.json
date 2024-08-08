@@ -1,0 +1,15 @@
+{
+  "auth": {
+    "starter_title": "The Decentralized Smart Patient Wallet.",
+    "starter_subtitle": "Take Control of Your Medical Records. Your Unhackable Health Wallet is here.",
+    "get_started": "Get Started",
+    "sign_in_up": "Sign Up or Log In",
+    "sign_up": "Sign Up with Web3 ID",
+    "sign_in": "Sign In with Web3 ID",
+    "sign_mm": "Sign In with MetaMask",
+    "sign_meta_title": "Sign In with your\nMeta Mask Account",
+    "sign_meta_desc": "Scan the QR Code or click the button to sign in with your ID using MetaMask",
+    "signup_quest": "Don't have an account?",
+    "signup": "Sign Up"
+  }
+}
