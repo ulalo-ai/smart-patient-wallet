@@ -1,4 +1,3 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_instance/src/bindings_interface.dart';
@@ -11,16 +10,7 @@ import 'generated/codegen_loader.g.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await EasyLocalization.ensureInitialized();
-  runApp(
-    EasyLocalization(
-        supportedLocales: const [Locale('en'), Locale('fr')],
-        path: 'assets/translations', // <-- change the path of the translation files
-        fallbackLocale: const Locale('en'),
-        assetLoader: const CodegenLoader(),
-        child: const MyApp()
-    ),
-  );
+  runApp(const MyApp());
 }
 
 class StoreBinding implements Bindings {
@@ -40,9 +30,6 @@ class MyApp extends StatelessWidget {
     Sizes.init(context);
     return GetMaterialApp(
         title: 'Motion Ride',
-        localizationsDelegates: context.localizationDelegates,
-        supportedLocales: context.supportedLocales,
-        locale: context.locale,
         debugShowCheckedModeBanner: false,
         theme: UlaloTheme,
         themeMode: ThemeMode.system,

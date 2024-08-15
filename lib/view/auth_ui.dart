@@ -40,7 +40,7 @@ class _AuthUiState extends State<AuthUi> {
                   )
               ),
               Container(
-                  padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 32),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
