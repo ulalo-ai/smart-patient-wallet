@@ -1,7 +1,8 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:polygonid_flutter_sdk/identity/domain/entities/private_identity_entity.dart';
+import 'package:polygonid_flutter_sdk/sdk/polygon_id_sdk.dart';
 
 import 'package:ulalo/core/global.dart';
 import 'package:ulalo/core/theme.dart';
@@ -49,7 +50,7 @@ class _AuthUiState extends State<AuthUi> {
                       verticalSpace(48),
                       SizedBox(
                           width: MediaQuery.of(context).size.width * 0.7,
-                          child: Text(LocaleKeys.auth_sign_in_up, textAlign: TextAlign.center, style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 32)).tr()
+                          child: Text(LocaleKeys.auth_sign_in_up, textAlign: TextAlign.center, style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 32))
                       ),
                       verticalSpace(64),
                       SizedBox(
@@ -57,7 +58,12 @@ class _AuthUiState extends State<AuthUi> {
                         height: 58,
                         child: ElevatedButton(
                           onPressed: () {
-
+                            Future<void> createIdentity() async {
+                              // we get the sdk instance previously initialized
+                              final sdk = PolygonIdSdk.I;
+                              PrivateIdentityEntity identity = await sdk.identity.addIdentity(secret: "UlaloKey");
+                            };
+                            createIdentity();
                           },
                           style: ElevatedButton.styleFrom(
                             elevation: 0,
@@ -81,7 +87,7 @@ class _AuthUiState extends State<AuthUi> {
                                   child: Text(
                                     LocaleKeys.auth_sign_mm,
                                     style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700),
-                                  ).tr(),
+                                  ),
                                 ),
                               ),
                             ],

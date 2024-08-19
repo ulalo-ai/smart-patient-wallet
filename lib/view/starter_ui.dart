@@ -1,4 +1,3 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -33,12 +32,12 @@ class _StarterUiState extends State<StarterUi> {
             verticalSpace(24),
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.65,
-              child: Text(LocaleKeys.auth_starter_title, textAlign: TextAlign.center, style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 20)).tr()
+              child: Text(LocaleKeys.auth_starter_title, textAlign: TextAlign.center, style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 20))
             ),
             verticalSpace(24),
             SizedBox(
                 width: MediaQuery.of(context).size.width * 0.7,
-                child: Text(LocaleKeys.auth_starter_subtitle, textAlign: TextAlign.center, style: GoogleFonts.poppins(fontWeight: FontWeight.w400, fontSize: 15)).tr()
+                child: Text(LocaleKeys.auth_starter_subtitle, textAlign: TextAlign.center, style: GoogleFonts.poppins(fontWeight: FontWeight.w400, fontSize: 15))
             ),
           ],
         )
@@ -60,7 +59,7 @@ class _StarterUiState extends State<StarterUi> {
             child: const Text(
               LocaleKeys.auth_get_started,
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-            ).tr(),
+            ),
           ),
         ),
       ),
