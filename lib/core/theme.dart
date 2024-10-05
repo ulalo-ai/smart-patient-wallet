@@ -13,7 +13,7 @@ class UlaloColors {
   static const secondary = Color(0xFF354755);
   static const secondaryInfo = Color(0xFF7AA8B7);
   static const secondaryBg = Color(0xFFDEE9ED);
-  static const info = Color(0xFF405ff2);
+  static const info = Color(0xFF007bff);
   static const success = Color(0xFF12D18E);
   static const error = Color(0xFFF75555);
   static const lightDisabled = Color(0xFFD8D8D8);

@@ -2,6 +2,15 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 	<dict>
+        <key>NSCameraUsageDescription</key>
+        <string>We need to access your camera to take photos.</string>
+        <key>NSPhotoLibraryUsageDescription</key>
+        <string>We need to access your photo library to select images.</string>
+        <key>NSAppTransportSecurity</key>
+        <dict>
+          <key>NSAllowsArbitraryLoads</key>
+          <true/>
+        </dict>
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
 		<key>CFBundleDisplayName</key>
@@ -51,7 +60,25 @@
 		<false/>
 		<key>LSApplicationQueriesSchemes</key>
         <array>
-        <string>metamask</string>
+          <string>cbwallet</string>
+          <string>metamask</string>
+          <string>trust</string>
+          <string>safe</string>
+          <string>rainbow</string>
+          <!-- Add other wallet schemes names here -->
+        </array>
+        <key>CFBundleURLTypes</key>
+        <array>
+          <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLName</key>
+            <string>io.ulalo.dapp.ulalo</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+              <string>ulalo</string>
+            </array>
+          </dict>
         </array>
 	</dict>
 </plist>

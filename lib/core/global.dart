@@ -127,3 +127,6 @@ extension EmptySpace on num {
   Widget get pW => SizedBox(width: toDouble());
 }
 
+const IPFS_HOST = "https://u0lzv3m0jx-u0i2s1k0i5-ipfs.us0-aws.kaleido.io";
+
+const IPFS_AUTH = "dTBldWh4YzkwejpDRG1MUkJOSjFXWHNFeVY1M1BOVF9ldnlIRUdiR0otVXNPdUNYXy1oZDlV";

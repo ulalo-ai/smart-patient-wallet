@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -32,34 +33,37 @@ class _StarterUiState extends State<StarterUi> {
             verticalSpace(24),
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.65,
-              child: Text(LocaleKeys.auth_starter_title, textAlign: TextAlign.center, style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 20))
+              child: Text(LocaleKeys.auth_starter_title, textAlign: TextAlign.center, style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 20)).tr()
             ),
             verticalSpace(24),
             SizedBox(
                 width: MediaQuery.of(context).size.width * 0.7,
-                child: Text(LocaleKeys.auth_starter_subtitle, textAlign: TextAlign.center, style: GoogleFonts.poppins(fontWeight: FontWeight.w400, fontSize: 15))
+                child: Text(LocaleKeys.auth_starter_subtitle, textAlign: TextAlign.center, style: GoogleFonts.poppins(fontWeight: FontWeight.w400, fontSize: 15)).tr()
             ),
           ],
         )
       ),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.only(bottom: 32, left: 16, right: 16),
+        padding: const EdgeInsets.only(bottom: 32, left: 24, right: 24),
         child: SizedBox(
           width: double.infinity,
-          height: 58,
+          height: 56,
           child: ElevatedButton(
             onPressed: () {
-              Navigator.of(context).pushNamed("/auth");
+              Navigator.of(context).pushNamed("/home");
             },
             style: ElevatedButton.styleFrom(
               elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(50), // Set your custom border radius here
+              ),
               shadowColor: Colors.transparent,
               backgroundColor: UlaloColors.primary,
             ),
             child: const Text(
               LocaleKeys.auth_get_started,
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-            ),
+            ).tr(),
           ),
         ),
       ),

@@ -1,0 +1,177 @@
+import 'dart:async';
+import 'dart:developer';
+import 'dart:io';
+import 'package:dio/dio.dart';
+import 'package:easy_pdf_viewer/easy_pdf_viewer.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+// #docregion platform_imports
+import 'package:webview_flutter_android/webview_flutter_android.dart';
+import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
+
+import '../core/global.dart';
+
+class DocPreview extends StatefulWidget {
+  const DocPreview({super.key, required this.cid});
+
+  final String cid;
+
+  @override
+  _DocPreviewState createState() => _DocPreviewState();
+}
+
+
+class PdfDownloader {
+  final Dio _dio = Dio();
+
+  Future<String?> downloadPdf(String ipfsUrl, String bearerToken) async {
+    try {
+      // Get the temporary directory
+      Directory tempDir = await getTemporaryDirectory();
+      String tempPath = tempDir.path;
+
+      // Define the file path where the PDF will be saved
+      String filePath = '$tempPath/document.pdf';
+
+      // Set up headers with the Bearer token
+      Options options = Options(
+        headers: {
+          'Authorization': 'Bearer $bearerToken',
+        },
+        responseType: ResponseType.bytes, // For downloading as binary (PDF)
+      );
+
+      // Download the file
+      Response response = await _dio.get(
+        ipfsUrl,
+        options: options,
+      );
+
+      // Save the file to the temporary directory
+      File file = File(filePath);
+      await file.writeAsBytes(response.data);
+
+      print('File saved at: $filePath');
+      return filePath;
+    } catch (e) {
+      print('Error downloading file: $e');
+      return null;
+    }
+  }
+}
+
+
+class _DocPreviewState extends State<DocPreview> {
+  String pathPDF = "";
+
+  bool _isLoading = true;
+  late PDFDocument document;
+
+  Future<File> createFileOfPdfUrl(String cid) async {
+    Completer<File> completer = Completer();
+    log("Start downloading file from IPFS!");
+
+    try {
+      final String url = "$IPFS_HOST/ipfs/$cid";
+      final String filename = cid; // Use CID as the filename or customize it
+
+      Dio dio = Dio();
+
+      // Set up options with Bearer token for authentication
+      Options options = Options(
+        headers: {
+          'Authorization': 'Basic $IPFS_AUTH',
+        },
+        responseType: ResponseType.bytes, // Ensure that we get raw bytes
+      );
+
+      // Send the GET request
+      Response response = await dio.get(
+        url,
+        options: options,
+      );
+
+      // Convert response data to bytes
+      var bytes = response.data;
+      var dir = await getTemporaryDirectory();
+
+      log("Download complete");
+      log("${dir.path}/$filename.pdf");
+
+      // Save the PDF file in the temporary directory
+      File file = File("${dir.path}/$filename.pdf");
+      await file.writeAsBytes(bytes, flush: true);
+
+      // Complete the future with the file
+      completer.complete(file);
+    } catch (e) {
+      log('Error downloading PDF file: $e');
+      completer.completeError(Exception('Error downloading PDF file: $e'));
+    }
+
+    return completer.future;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    createFileOfPdfUrl(widget.cid).then((f) {
+      setState(() {
+        pathPDF = f.path;
+      });
+      loadDocument();
+    });
+  }
+
+  loadDocument() async {
+    File file  = File(pathPDF);
+    document = await PDFDocument.fromFile(file);
+    setState(() => _isLoading = false);
+  }
+
+  Future<void> shareFile() async {
+    try {
+      await Share.shareXFiles([XFile(pathPDF)], text: 'Check out this file!');
+    } catch (e) {
+      print('Error sharing file: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    log("File path: $pathPDF");
+
+    return Scaffold(
+      appBar: AppBar(
+        title: SizedBox(
+          width: MediaQuery.of(context).size.width * 0.75,
+          child: Text(
+            widget.cid,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+                fontSize: 16,
+                color: Colors.black,
+                fontWeight: FontWeight.bold),
+          ),
+        ),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(CupertinoIcons.share),
+            onPressed: () => shareFile(),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
+      body: Center(
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : PDFViewer(document: document)),
+    );
+  }
+}

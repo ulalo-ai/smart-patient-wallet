@@ -1,13 +1,21 @@
+import 'dart:developer';
+
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:polygonid_flutter_sdk/identity/domain/entities/private_identity_entity.dart';
-import 'package:polygonid_flutter_sdk/sdk/polygon_id_sdk.dart';
 
 import 'package:ulalo/core/global.dart';
 import 'package:ulalo/core/theme.dart';
 
 import 'package:ulalo/generated/locale_keys.g.dart';
+import 'package:web3modal_flutter/services/w3m_service/events/w3m_events.dart';
+import 'package:web3modal_flutter/web3modal_flutter.dart';
+import 'package:web3modal_flutter/widgets/w3m_account_button.dart';
+import 'package:web3modal_flutter/widgets/w3m_connect_wallet_button.dart';
+import 'package:web3modal_flutter/widgets/w3m_network_select_button.dart';
+
+import '../core/creds.dart';
 
 class AuthUi extends StatefulWidget {
   const AuthUi({Key? key}) : super(key: key);
@@ -17,6 +25,24 @@ class AuthUi extends StatefulWidget {
 }
 
 class _AuthUiState extends State<AuthUi> {
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    // w3mService.onModalConnect.subscribe((ModalConnect? event) {
+    //   if(event != null){
+    //     ScaffoldMessenger.of(context).showSnackBar( SnackBar(
+    //       content: const Text(LocaleKeys.auth_error_conn).tr(),
+    //     ));
+    //   }
+    //   else{
+    //     ScaffoldMessenger.of(context).showSnackBar( SnackBar(
+    //       content: const Text(LocaleKeys.auth_error_conn).tr(),
+    //     ));
+    //   }
+    // });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,52 +75,20 @@ class _AuthUiState extends State<AuthUi> {
                       Center(child: SvgPicture.asset("assets/images/ulalo.svg", width: 150)),
                       verticalSpace(48),
                       SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.7,
-                          child: Text(LocaleKeys.auth_sign_in_up, textAlign: TextAlign.center, style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 32))
+                          width: MediaQuery.of(context).size.width * 0.8,
+                          child: Text(LocaleKeys.auth_auth_desc, textAlign: TextAlign.center, style: GoogleFonts.poppins(fontWeight: FontWeight.w500, fontSize: 16, color: UlaloColors.textGrey600)).tr()
                       ),
                       verticalSpace(64),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 58,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Future<void> createIdentity() async {
-                              // we get the sdk instance previously initialized
-                              final sdk = PolygonIdSdk.I;
-                              PrivateIdentityEntity identity = await sdk.identity.addIdentity(secret: "UlaloKey");
-                            };
-                            createIdentity();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            elevation: 0,
-                            shadowColor: Colors.transparent,
-                            backgroundColor: UlaloColors.black,
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Flexible(
-                                flex: 1,
-                                child: Image.asset(
-                                    'assets/images/metamask.png',
-                                    height: 24.0,
-                                    width: 24.0
-                                ),
-                              ),
-                              Expanded(
-                                flex: 5,
-                                child: Center(
-                                  child: Text(
-                                    LocaleKeys.auth_sign_mm,
-                                    style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-
-                        ),
-                      )
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // W3MAccountButton(service: w3mService),
+                          // W3MNetworkSelectButton(service: w3mService),
+                          // W3MConnectWalletButton(
+                          //   service: w3mService, size: BaseButtonSize.big,
+                          // ),
+                        ],
+                      ),
                     ],
                   )
               ),
