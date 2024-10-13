@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
       accent100: const Color.fromARGB(255, 30, 59, 236),
       background100: const Color.fromARGB(255, 161, 183, 231),
       // Main Modal's background color
-      background125: const Color.fromARGB(255, 206, 221, 255),
+      background125: const Color.fromARGB(255, 255, 255, 255),
       background175: const Color.fromARGB(255, 237, 241, 255),
       inverse100: const Color.fromARGB(255, 233, 237, 236),
       inverse000: const Color.fromARGB(255, 22, 18, 19),
@@ -64,7 +64,7 @@ class MyApp extends StatelessWidget {
       accent100: const Color.fromARGB(255, 161, 183, 231),
       background100: const Color.fromARGB(255, 30, 59, 236),
       // Main Modal's background color
-      background125: const Color.fromARGB(255, 12, 23, 99),
+      background125: const Color.fromARGB(255, 22, 18, 19),
       background175: const Color.fromARGB(255, 78, 103, 230),
       inverse100: const Color.fromARGB(255, 22, 18, 19),
       inverse000: const Color.fromARGB(255, 233, 237, 236),
@@ -73,7 +73,10 @@ class MyApp extends StatelessWidget {
       // Secondary Modal's text
       foreground150: const Color.fromARGB(255, 233, 237, 236),
     ),
-    radiuses: ReownAppKitModalRadiuses.square,
+    radiuses: ReownAppKitModalRadiuses.circular.copyWith(
+      // radiusXS: 10.0,
+      radiusM: 25.0,
+    )
   );
 
   Future<List<Object>> _initDeps() async {
@@ -89,7 +92,7 @@ class MyApp extends StatelessWidget {
 
     Sizes.init(context);
     return ReownAppKitModalTheme(
-      isDarkMode: false,
+      isDarkMode: true,
       themeData: _customTheme,
       child: GetMaterialApp(
           title: 'Ulalo Med DApp',

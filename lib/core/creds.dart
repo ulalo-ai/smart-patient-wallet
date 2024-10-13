@@ -15,6 +15,8 @@ ReownAppKitModal web3Credentials(BuildContext ctx){
           native: 'ulalo://',
           universal: 'https://www.ulalo.xyz',
         ),
-      )
+      ),
+      enableAnalytics: true, // OPTIONAL - null by default
+      enableEmail: true,
   );
 }

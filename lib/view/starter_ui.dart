@@ -1,9 +1,12 @@
 import 'dart:developer';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:reown_appkit/modal/models/public/appkit_modal_events.dart';
 import 'package:reown_appkit/modal/widgets/public/appkit_modal_account_button.dart';
 import 'package:reown_appkit/modal/widgets/public/appkit_modal_connect_button.dart';
 import 'package:reown_appkit/modal/widgets/public/appkit_modal_network_select_button.dart';
@@ -37,6 +40,14 @@ class _StarterUiState extends State<StarterUi> with WidgetsBindingObserver {
     super.initState();
     // Register this widget as a lifecycle observer
     WidgetsBinding.instance.addObserver(this);
+
+    _appKitModal.onModalConnect.subscribe((ModalConnect? event) {
+      log(event.toString());
+    });
+
+    _appKitModal.onModalUpdate.subscribe((ModalConnect? event) {
+      log(event.toString());
+    });
   }
 
   @override
@@ -87,7 +98,7 @@ class _StarterUiState extends State<StarterUi> with WidgetsBindingObserver {
         )
       ),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.only(bottom: 32, left: 16, right: 16),
+        padding: const EdgeInsets.only(bottom: 48, left: 24, right: 24),
         child: SizedBox(
           width: double.infinity,
           height: 56,
@@ -96,7 +107,30 @@ class _StarterUiState extends State<StarterUi> with WidgetsBindingObserver {
             children: [
               Visibility(
                 visible: !_appKitModal.isConnected,
-                child: AppKitModalConnectButton(appKit: _appKitModal),
+                child: AppKitModalConnectButton(
+                  appKit: _appKitModal,
+                  custom: SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        backgroundColor: Colors.black
+                      ),
+                      onPressed: () {
+                        _appKitModal.openModalView();
+                      },
+                      child: const Row(
+                        children: [
+                          Icon(FluentIcons.wallet_32_regular),
+                          Expanded(child: Center(child: Text('Connect Wallet'))),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ),
               SizedBox(
                 width: double.infinity,
