@@ -35,9 +35,8 @@ class _UiDocIaState extends State<UiDocIa> with WidgetsBindingObserver {
 
   Future<File> createFileOfPdfUrl() async {
     Completer<File> completer = Completer();
-    print("Start download file from internet!");
     try {
-      final url =
+      const url =
           "https://u0lzv3m0jx-u0i2s1k0i5-ipfs.us0-aws.kaleido.io/ipfs/QmeVPegfqi6Xfq6anfCfKdFtuHpFxkqk7RTdxt4cPGhh88";
       final filename = url.substring(url.lastIndexOf("/") + 1);
       var request = await HttpClient().getUrl(Uri.parse(url));
@@ -106,96 +105,94 @@ class _UiDocIaState extends State<UiDocIa> with WidgetsBindingObserver {
         child: Column(
           children: [
             Expanded(
-                child: SingleChildScrollView(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: MediaQuery.of(context).size.height, // Constrain height
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          decoration: const BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.all(Radius.circular(24))),
-                          padding:
-                              const EdgeInsets.symmetric(horizontal: 0, vertical: 24),
-                          child: Column(
-                            children: [
-                              const Text(
-                                "Medical Document Analyzer",
-                                style: TextStyle(
-                                    color: UlaloColors.black,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w900),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: MediaQuery.of(context).size.height, // Constrain height
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        decoration: const BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.all(Radius.circular(24))),
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 0, vertical: 24),
+                        child: Column(
+                          children: [
+                            const Text(
+                              "Medical Document Analyzer",
+                              style: TextStyle(
+                                  color: UlaloColors.black,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w900),
+                            ),
+                            verticalSpace(12),
+                            const Divider(
+                              color: UlaloColors.textGrey300,
+                            ),
+                            verticalSpace(8),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 24),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    "File to Upload (Image or PDF)",
+                                    style: TextStyle(
+                                        color: CupertinoColors.systemGrey,
+                                        fontSize: 12),
+                                  ),
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                          onPressed: () {
+                                            userProvider.pickPDFFile();
+                                          },
+                                          icon: const Icon(CupertinoIcons.folder,
+                                              color: Colors.black, size: 32)),
+                                      horizontalSpace(16),
+                                      IconButton(
+                                          onPressed: () {
+                                            userProvider.captureImageFromCamera();
+                                          },
+                                          icon: const Icon(CupertinoIcons.camera,
+                                              color: Colors.black, size: 32)),
+                                    ],
+                                  ),
+                                ],
                               ),
-                              verticalSpace(12),
-                              const Divider(
-                                color: UlaloColors.textGrey300,
-                              ),
-                              verticalSpace(8),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 24),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text(
-                                      "File to Upload (Image or PDF)",
-                                      style: TextStyle(
-                                          color: CupertinoColors.systemGrey,
-                                          fontSize: 12),
-                                    ),
-                                    Row(
-                                      children: [
-                                        IconButton(
-                                            onPressed: () {
-                                              userProvider.pickPDFFile();
-                                            },
-                                            icon: const Icon(CupertinoIcons.folder,
-                                                color: Colors.black, size: 32)),
-                                        horizontalSpace(16),
-                                        IconButton(
-                                            onPressed: () {
-                                              userProvider.captureImageFromCamera();
-                                            },
-                                            icon: const Icon(CupertinoIcons.camera,
-                                                color: Colors.black, size: 32)),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              if (userProvider.pdfFile != null)
-                                Column(
-                                  children: [
-                                    verticalSpace(12),
-                                    const Divider(
-                                      color: UlaloColors.textGrey300,
-                                    ),
-                                    verticalSpace(8),
-                                    const Text(
-                                      "Selected file:",
-                                      style: TextStyle(
-                                          color: UlaloColors.textGrey600,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                    verticalSpace(10),
-                                    Text(
-                                      path.basename(userProvider.pdfFile!.path),
-                                      style: const TextStyle(
-                                          color: UlaloColors.info,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                  ],
-                                )
-                            ],
-                          ),
+                            ),
+                            if (userProvider.pdfFile != null)
+                              Column(
+                                children: [
+                                  verticalSpace(12),
+                                  const Divider(
+                                    color: UlaloColors.textGrey300,
+                                  ),
+                                  verticalSpace(8),
+                                  const Text(
+                                    "Selected file:",
+                                    style: TextStyle(
+                                        color: UlaloColors.textGrey600,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                  verticalSpace(10),
+                                  Text(
+                                    path.basename(userProvider.pdfFile!.path),
+                                    style: const TextStyle(
+                                        color: UlaloColors.info,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                ],
+                              )
+                          ],
                         ),
-                        verticalSpace(16),
-                      ],
-                    ),
+                      ),
+                      verticalSpace(16),
+                    ],
                   ),
                 )
             ),

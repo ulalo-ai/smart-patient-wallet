@@ -163,6 +163,8 @@ class WalletConnectProvider with ChangeNotifier {
   }
 
   Future<File> _convertImageToPDF(File imageFile) async {
+    _isUploading = true;
+    notifyListeners();
     // Create a PDF document
     final pdf = pw.Document();
 
@@ -191,9 +193,12 @@ class WalletConnectProvider with ChangeNotifier {
       String tempPath = tempDir.path;
       File pdfFile = File('$tempPath/converted_image.pdf');
       await pdfFile.writeAsBytes(await pdf.save());
-
+      _isUploading = false;
+      notifyListeners();
       return pdfFile;
     } else {
+      _isUploading = false;
+      notifyListeners();
       throw Exception('Error decoding the image file');
     }
   }
@@ -252,60 +257,6 @@ class WalletConnectProvider with ChangeNotifier {
     }
   }
 
-  // Future<void> uploadPDFFile() async {
-  //   if (_file != null) {
-  //     try {
-  //       _isUploading = true;
-  //       _uploadStatus = "Uploading...";
-  //       notifyListeners();
-  //       String filePath = _file!.files.single.path!;
-  //       FormData formData = FormData.fromMap({
-  //         "pdfFile": await MultipartFile.fromFile(filePath, filename: _file!.files.single.name),
-  //       });
-  //       DioClient api = DioClient();
-  //       Response response = await api.dio.post(
-  //         "$API_HOST/api/extract-data",
-  //         data: formData,
-  //         options: Options(
-  //           headers: {
-  //             "Content-Type": "multipart/form-data",
-  //           },
-  //         ),
-  //       );
-  //       _uploadStatus = response.statusCode == 200 ? "Upload successful!" : "Upload failed!";
-  //       _docData = DocData.fromJson(response.data);
-  //       log(_docData.toString());
-  //
-  //       FormData formData2 = FormData.fromMap({
-  //         "path": await MultipartFile.fromFile(filePath, filename: _file!.files.single.name),
-  //       });
-  //       Response response2 = await api.dio.post(
-  //         "$IPFS_HOST/api/v0/add/",
-  //         data: formData2,
-  //         options: Options(
-  //           headers: {
-  //             "Content-Type": "multipart/form-data",
-  //             "Authorization": "Basic $IPFS_AUTH"
-  //           },
-  //         ),
-  //       );
-  //       _uploadStatus = response2.statusCode == 200 ? "Upload successful!" : "Upload failed!";
-  //       _ipfsData = IpfsData.fromJson(response2.data);
-  //       log(_ipfsData.toString());
-  //
-  //       notifyListeners();
-  //     } catch (e) {
-  //       _docData = null;
-  //       _uploadStatus = "Error occurred during upload: $e";
-  //       log("Error: ${e.toString()}");
-  //       notifyListeners();
-  //     } finally {
-  //       _isUploading = false;
-  //       notifyListeners();
-  //     }
-  //   }
-  // }
-
   ModalConnect? _connectionDetails;
   ModalError? _errorDetails;
   ModalNetworkChange? _networkChangeDetails;
@@ -329,40 +280,6 @@ class WalletConnectProvider with ChangeNotifier {
   }
 
   void _initializeListeners() {
-
-    // Connection established
-    // w3mService.onModalConnect.subscribe((ModalConnect? event) {
-    //   log("EVENT:  $event");
-    //   _connectionDetails = event;
-    //   notifyListeners(); // Notify consumers about the change
-    // });
-    //
-    // // SIWE login finishes
-    // w3mService.onModalUpdate.subscribe((ModalConnect? event) {
-    //   log("EVENT:  $event");
-    //   _connectionDetails = event; // Update with latest connection data
-    //   notifyListeners();
-    // });
-    //
-    // // Connection deleted
-    // w3mService.onModalDisconnect.subscribe((ModalDisconnect? event) {
-    //   log("EVENT:  $event");
-    //   _connectionDetails = null; // Clear connection data on disconnect
-    //   notifyListeners();
-    // });
-    //
-    // // Error during connection
-    // w3mService.onModalError.subscribe((ModalError? event) {
-    //   _errorDetails = event;
-    //   notifyListeners();
-    // });
-    //
-    // // Network changed in the dapp
-    // w3mService.onModalNetworkChange.subscribe((ModalNetworkChange? event) {
-    //   log("EVENT:  $event");
-    //   _networkChangeDetails = event;
-    //   notifyListeners();
-    // });
   }
 
 }

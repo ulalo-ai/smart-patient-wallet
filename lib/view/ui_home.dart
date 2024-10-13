@@ -36,11 +36,19 @@ class _HomePageState extends State<HomePage> {
 
   List<TabItem>? tabItems;
 
-  late ReownAppKitModal _appKitModal;
-  bool _initialized = false;
+  var _appKitModal;
+
+  late bool isConnected;
 
   @override
   void initState() {
+    _appKitModal = web3Credentials(context);
+    Future.microtask(() async {
+      await _appKitModal.init();
+    });
+    setState(() {
+      isConnected = _appKitModal.isConnected;
+    });
     super.initState();
   }
 
@@ -58,7 +66,7 @@ class _HomePageState extends State<HomePage> {
             automaticallyImplyLeading: false,
             leadingWidth: 0,
             centerTitle: true,
-            // title: W3MAccountButton(service: w3mService),
+            title: AppKitModalAccountButton(appKit: _appKitModal),
             actions: [
               IconButton(onPressed: (){}, icon: const Icon(FluentIcons.alert_48_regular, size: 32)),
               horizontalSpace(8)
@@ -82,8 +90,6 @@ class _HomePageState extends State<HomePage> {
               children: [
                 const UiDocIa(),
                 Container(),
-                Container(),
-                Container(),
               ],
             ),
           ],
@@ -91,20 +97,15 @@ class _HomePageState extends State<HomePage> {
         bottomNavigationBar: BottomBarDivider(
           items: const [
             TabItem(
-                icon: IconData(63547,
+                icon: IconData(59995,
                     fontFamily: 'FluentSystemIcons-Regular',
                     fontPackage: 'fluentui_system_icons'),
-                title: 'Doc IA'),
+                title: 'Analyze'),
             TabItem(
-                icon: IconData(61731,
+                icon: IconData(61656,
                     fontFamily: 'FluentSystemIcons-Regular',
                     fontPackage: 'fluentui_system_icons'),
-                title: 'IPFS'),
-            TabItem(
-                icon: IconData(0xea96,
-                    fontFamily: 'cryptofont',
-                    fontPackage: 'cryptofont'),
-                title: 'ERC'),
+                title: 'My Data'),
             TabItem(
                 icon: IconData(0xf411,
                     fontFamily: 'CupertinoIcons',

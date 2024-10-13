@@ -100,25 +100,28 @@ class MyApp extends StatelessWidget {
           theme: UlaloTheme,
           themeMode: ThemeMode.system,
           initialBinding: StoreBinding(),
-          home: FutureBuilder<List<Object>>(
-            future: _initDeps(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return HomePage(
-                  prefs: snapshot.data!.first as SharedPreferences,
-                  bundleId: snapshot.data!.last as String,
-                );
-              }
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            },
-          ),
+          initialRoute: "/",
           getPages: [
             GetPage(name: '/', page: () {
               return const StarterUi();
             }),
             GetPage(name: '/auth', page: () => const AuthUi()),
+            GetPage(name: '/home', page: () {
+              return FutureBuilder<List<Object>>(
+                future: _initDeps(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return HomePage(
+                      prefs: snapshot.data!.first as SharedPreferences,
+                      bundleId: snapshot.data!.last as String,
+                    );
+                  }
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                },
+              );
+            }),
           ]
       ),
     );
