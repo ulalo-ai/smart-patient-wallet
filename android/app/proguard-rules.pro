@@ -1,0 +1,5 @@
+-keep class com.google.crypto.tink.** { *; }
+-keep class com.google.errorprone.annotations.** { *; }
+-keep class javax.annotation.** { *; }
+-keep class javax.annotation.concurrent.** { *; }
+-keepattributes *Annotation*

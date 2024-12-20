@@ -9,11 +9,6 @@ import 'package:ulalo/core/global.dart';
 import 'package:ulalo/core/theme.dart';
 
 import 'package:ulalo/generated/locale_keys.g.dart';
-import 'package:web3modal_flutter/services/w3m_service/events/w3m_events.dart';
-import 'package:web3modal_flutter/web3modal_flutter.dart';
-import 'package:web3modal_flutter/widgets/w3m_account_button.dart';
-import 'package:web3modal_flutter/widgets/w3m_connect_wallet_button.dart';
-import 'package:web3modal_flutter/widgets/w3m_network_select_button.dart';
 
 import '../core/creds.dart';
 
@@ -28,19 +23,6 @@ class _AuthUiState extends State<AuthUi> {
 
   @override
   void initState() {
-    // TODO: implement initState
-    // w3mService.onModalConnect.subscribe((ModalConnect? event) {
-    //   if(event != null){
-    //     ScaffoldMessenger.of(context).showSnackBar( SnackBar(
-    //       content: const Text(LocaleKeys.auth_error_conn).tr(),
-    //     ));
-    //   }
-    //   else{
-    //     ScaffoldMessenger.of(context).showSnackBar( SnackBar(
-    //       content: const Text(LocaleKeys.auth_error_conn).tr(),
-    //     ));
-    //   }
-    // });
     super.initState();
   }
 

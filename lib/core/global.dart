@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 Widget verticalSpace(double height) {
   return SizedBox(height: height);
@@ -127,6 +128,61 @@ extension EmptySpace on num {
   Widget get pW => SizedBox(width: toDouble());
 }
 
-const IPFS_HOST = "https://u0lzv3m0jx-u0i2s1k0i5-ipfs.us0-aws.kaleido.io";
+const IPFS_HOST = "https://u0xyynyqx4-u0y40plpb7-ipfs.us0-aws.kaleido.io";
 
-const IPFS_AUTH = "dTBldWh4YzkwejpDRG1MUkJOSjFXWHNFeVY1M1BOVF9ldnlIRUdiR0otVXNPdUNYXy1oZDlV";
+const IPFS_API = "https://u0xyynyqx4-u0y40plpb7-ipfs.us0-aws.kaleido.io/ipfs/Qmbo8PfVs4WWanjFPMboP8Gx5hunN1Tn5kLMmhvB3L1LVd";
+
+const IPFS_AUTH = "dTBwdHZleHR1bTpmVl9XZnoycUVNNFUxdWxwb3FTZDk4WDZ4MzlXRGh0RkdzSXo2SHM5WVBr";
+
+const CONTRACT_API = "http://54.234.69.252:3000";
+
+String getCategory(List<String> list) {
+  // Create a Map to store each string and its count
+  Map<String, int> frequencyMap = {};
+
+  // Count each occurrence
+  for (var item in list) {
+    frequencyMap[item] = (frequencyMap[item] ?? 0) + 1;
+  }
+
+  // Find the string with the maximum count
+  String? mostFrequentString;
+  int maxCount = 0;
+
+  frequencyMap.forEach((key, count) {
+    if (count > maxCount) {
+      maxCount = count;
+      mostFrequentString = key;
+    }
+  });
+  return mostFrequentString.toString();
+}
+
+String filenameFromAPI(List<String> list) {
+  // Create a Map to store each string and its count
+  Map<String, int> frequencyMap = {};
+
+  // Count each occurrence
+  for (var item in list) {
+    frequencyMap[item] = (frequencyMap[item] ?? 0) + 1;
+  }
+
+  // Find the string with the maximum count
+  String? mostFrequentString;
+  int maxCount = 0;
+
+  frequencyMap.forEach((key, count) {
+    if (count > maxCount) {
+      maxCount = count;
+      mostFrequentString = key;
+    }
+  });
+  String result = "${mostFrequentString ?? ''}_${getDate()}" ;
+  return result;
+}
+
+String getDate() {
+  DateTime now = DateTime.now();
+  String formattedDate = DateFormat('yyyy_MM_dd').format(now);
+  return formattedDate;
+}

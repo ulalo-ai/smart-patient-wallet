@@ -92,7 +92,7 @@ class MyApp extends StatelessWidget {
 
     Sizes.init(context);
     return ReownAppKitModalTheme(
-      isDarkMode: true,
+      isDarkMode: false,
       themeData: _customTheme,
       child: GetMaterialApp(
           title: 'Ulalo Med DApp',

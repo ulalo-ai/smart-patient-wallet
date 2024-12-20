@@ -13,10 +13,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:reown_appkit/appkit_modal.dart';
 import 'package:ulalo/core/global.dart';
 import 'package:ulalo/view/doc_preview.dart';
-import 'package:web3modal_flutter/widgets/avatars/w3m_account_avatar.dart';
-import 'package:web3modal_flutter/widgets/w3m_account_button.dart';
 
 import '../core/creds.dart';
 import '../core/theme.dart';
@@ -24,64 +23,20 @@ import '../generated/locale_keys.g.dart';
 import '../service/wallet.provider.dart';
 
 class UiDocIa extends StatefulWidget {
-  const UiDocIa({Key? key}) : super(key: key);
+
+  const UiDocIa({super.key, required this.appKitModal});
+
+  final ReownAppKitModal appKitModal;
 
   @override
   _UiDocIaState createState() => _UiDocIaState();
 }
 
 class _UiDocIaState extends State<UiDocIa> with WidgetsBindingObserver {
-  String pathPDF = "";
-
-  Future<File> createFileOfPdfUrl() async {
-    Completer<File> completer = Completer();
-    try {
-      const url =
-          "https://u0lzv3m0jx-u0i2s1k0i5-ipfs.us0-aws.kaleido.io/ipfs/QmeVPegfqi6Xfq6anfCfKdFtuHpFxkqk7RTdxt4cPGhh88";
-      final filename = url.substring(url.lastIndexOf("/") + 1);
-      var request = await HttpClient().getUrl(Uri.parse(url));
-      var response = await request.close();
-      var bytes = await consolidateHttpClientResponseBytes(response);
-      var dir = await getApplicationDocumentsDirectory();
-      print("Download files");
-      print("${dir.path}/$filename");
-      File file = File("${dir.path}/$filename");
-
-      await file.writeAsBytes(bytes, flush: true);
-      completer.complete(file);
-    } catch (e) {
-      throw Exception('Error parsing asset file!');
-    }
-
-    return completer.future;
-  }
-
-  Future<File> fromAsset(String asset, String filename) async {
-    // To open from assets, you can copy them to the app storage folder, and the access them "locally"
-    Completer<File> completer = Completer();
-
-    try {
-      var dir = await getApplicationDocumentsDirectory();
-      File file = File("${dir.path}/$filename");
-      var data = await rootBundle.load(asset);
-      var bytes = data.buffer.asUint8List();
-      await file.writeAsBytes(bytes, flush: true);
-      completer.complete(file);
-    } catch (e) {
-      throw Exception('Error parsing asset file!');
-    }
-
-    return completer.future;
-  }
 
   @override
   void initState() {
     super.initState();
-    createFileOfPdfUrl().then((f) {
-      setState(() {
-        pathPDF = f.path;
-      });
-    });
   }
 
   final Completer<PDFViewController> _controller =
@@ -197,8 +152,14 @@ class _UiDocIaState extends State<UiDocIa> with WidgetsBindingObserver {
                 )
             ),
             if (userProvider.isUploading)
-              const CircularProgressIndicator(
-                color: UlaloColors.primary,
+              Column(
+                children: [
+                  const CircularProgressIndicator(
+                    color: UlaloColors.primary,
+                  ),
+                  verticalSpace(24),
+                  Text(userProvider.status, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w900))
+                ],
               )
             else
               SizedBox(
@@ -207,7 +168,10 @@ class _UiDocIaState extends State<UiDocIa> with WidgetsBindingObserver {
                 child: ElevatedButton(
                   onPressed: userProvider.pdfFile != null
                       ? () async {
-                          await userProvider.uploadPDFFile();
+                          final chainId = widget.appKitModal.selectedChain?.chainId ?? '';
+                          final namespace = ReownAppKitModalNetworks.getNamespaceForChainId(chainId);
+                          final address = widget.appKitModal.session!.getAddress(namespace);
+                          await userProvider.uploadPDFFile(address!);
                           if(context.mounted){
                             if(userProvider.docData != null){
                               log(userProvider.docData.toString());
@@ -309,9 +273,20 @@ class _UiDocIaState extends State<UiDocIa> with WidgetsBindingObserver {
                                                                           MainAxisAlignment.start,
                                                                           children: [
                                                                             verticalSpace(16),
-                                                                            Image.network("https://img.icons8.com/fluency/100/thin-test-tube.png", width: 100, height: 100),
+                                                                            Image.network("https://img.icons8.com/fluency/100/lab-items.png", width: 100, height: 100),
                                                                             verticalSpace(24),
                                                                             if(userProvider.ipfsData != null)
+                                                                              SizedBox(
+                                                                                width: MediaQuery.of(context).size.width * 0.75, // Set the width to 75% of the available width
+                                                                                child: Text(
+                                                                                  userProvider.ipfsData!.Name!,
+                                                                                  maxLines: 1, // Limit to one line
+                                                                                  textAlign: TextAlign.center,
+                                                                                  overflow: TextOverflow.ellipsis, // Add ellipsis when the text overflows
+                                                                                  style: const TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold), // Customize text style
+                                                                                ),
+                                                                              ),
+                                                                              verticalSpace(32),
                                                                               SizedBox(
                                                                                 width: MediaQuery.of(context).size.width * 0.75, // Set the width to 75% of the available width
                                                                                 child: Text(

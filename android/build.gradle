@@ -1,3 +1,5 @@
+//classpath 'com.android.tools.build:gradle:8.1.1'
+
 allprojects {
     repositories {
         google()
@@ -16,3 +18,8 @@ subprojects {
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
+
+configurations.configureEach {
+    exclude group: 'com.google.errorprone', module: 'error_prone_annotations'
+}
+

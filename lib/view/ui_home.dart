@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cryptofont/cryptofont.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/cupertino.dart';
@@ -13,6 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ulalo/core/global.dart';
 import 'package:ulalo/core/iconly_curved_icons.dart';
 import 'package:ulalo/core/theme.dart';
+import 'package:ulalo/view/ui_data.dart';
 import 'package:ulalo/view/ui_doc_ia.dart';
 import 'package:reown_appkit/reown_appkit.dart';
 
@@ -31,7 +34,7 @@ class HomePage extends StatefulWidget {
 
 const _storage = FlutterSecureStorage();
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   List<Widget>? tabViews;
 
   List<TabItem>? tabItems;
@@ -41,15 +44,47 @@ class _HomePageState extends State<HomePage> {
   late bool isConnected;
 
   @override
+  void dispose() {
+    // Remove the lifecycle observer when the widget is disposed
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
   void initState() {
     _appKitModal = web3Credentials(context);
     Future.microtask(() async {
       await _appKitModal.init();
     });
+    super.initState();
+
+    WidgetsBinding.instance.addObserver(this);
+
     setState(() {
       isConnected = _appKitModal.isConnected;
     });
-    super.initState();
+
+    _appKitModal.onModalDisconnect.subscribe((ModalDisconnect? event) {
+      log("On Disconnect: $event");
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        '/', // The new route to push
+            (Route<dynamic> route) => false, // Remove all previous routes
+      );
+    });
+  }
+
+  // This method is called when the app gains or loses focus
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if(_appKitModal.isConnected == false){
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        '/', // The new route to push
+            (Route<dynamic> route) => false, // Remove all previous routes
+      );
+    }
   }
 
   @override
@@ -62,15 +97,13 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.white,
         appBar: AppBar(
             backgroundColor: Colors.transparent,
-            leading: Padding(padding: const EdgeInsets.only(left:8), child: IconButton(onPressed: (){}, icon: const Icon(FluentIcons.line_horizontal_3_20_filled, size: 32))),
+            // leading: Padding(padding: const EdgeInsets.only(left:8), child: IconButton(onPressed: (){}, icon: const Icon(FluentIcons.line_horizontal_3_20_filled, size: 32))),
             automaticallyImplyLeading: false,
             leadingWidth: 0,
             centerTitle: true,
-            title: AppKitModalAccountButton(appKit: _appKitModal),
-            actions: [
-              IconButton(onPressed: (){}, icon: const Icon(FluentIcons.alert_48_regular, size: 32)),
-              horizontalSpace(8)
-            ],
+            title: AppKitModalAccountButton(
+              appKitModal: _appKitModal, size: BaseButtonSize.small
+            ),
         ),
         body: Stack(
           children: [
@@ -88,8 +121,8 @@ class _HomePageState extends State<HomePage> {
             IndexedStack(
               index: appProvider.activeTab,
               children: [
-                const UiDocIa(),
-                Container(),
+                UiDocIa(appKitModal: _appKitModal),
+                UiData(appKitModal: _appKitModal),
               ],
             ),
           ],
@@ -132,7 +165,7 @@ class _HomePageState extends State<HomePage> {
             fontSize: 8,
           ),
           indexSelected: appProvider.activeTab,
-          onTap: (int index) => appProvider.changeTab(index),
+          onTap: (int index) => appProvider.changeTab(index, _appKitModal),
         ),
       );
     });

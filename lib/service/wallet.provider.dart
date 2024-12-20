@@ -10,9 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:ulalo/core/global.dart';
-import 'package:web3modal_flutter/services/w3m_service/events/w3m_events.dart';
-import 'package:web3modal_flutter/services/w3m_service/w3m_service.dart';
-import '../core/creds.dart';
+import 'package:reown_appkit/appkit_modal.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
@@ -77,6 +75,8 @@ String messageModelToJson(DocData data) => json.encode(data.toJson());
 DocData messageFromJson(String str) => DocData.fromJson(json.decode(str));
 
 
+
+
 class IpfsData {
   String? Hash;
   String? Name;
@@ -108,21 +108,52 @@ String ipfsModelToJson(IpfsData data) => json.encode(data.toJson());
 IpfsData ipfsFromJson(String str) => IpfsData.fromJson(json.decode(str));
 
 
+
+
+class ContractData {
+  List<dynamic>? files;
+
+  ContractData({
+    required this.files
+  });
+
+  factory ContractData.fromJson(Map<String, dynamic> json) {
+    return ContractData(
+        files: json["files"]
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    "files": files
+  };
+}
+
+String contractModelToJson(ContractData data) => json.encode(data.toJson());
+
+ContractData contractFromJson(String str) => ContractData.fromJson(json.decode(str));
+
+
 class WalletConnectProvider with ChangeNotifier {
 
   FilePickerResult? _file;
   File? _pdfFile;
   bool _isUploading = false;
+  bool _loading = false;
   String _uploadStatus = '';
   DocData? _docData;
+  ContractData? _myData;
   IpfsData? _ipfsData;
 
   FilePickerResult? get file => _file;
   File? get pdfFile => _pdfFile;
   bool get isUploading => _isUploading;
+  bool get loading => _loading;
   String get uploadStatus => _uploadStatus;
   DocData? get docData => _docData;
+  ContractData? get myData => _myData;
   IpfsData? get ipfsData => _ipfsData;
+
+  String status = "...";
 
   Future<void> pickPDFFile() async {
     _file = await FilePicker.platform.pickFiles(
@@ -203,7 +234,7 @@ class WalletConnectProvider with ChangeNotifier {
     }
   }
 
-  Future<void> uploadPDFFile() async {
+  Future<void> uploadPDFFile(String address) async {
     if (_pdfFile != null) {
       try {
         _isUploading = true;
@@ -214,6 +245,8 @@ class WalletConnectProvider with ChangeNotifier {
           "pdfFile": await MultipartFile.fromFile(filePath, filename: path.basename(filePath)),
         });
         DioClient api = DioClient();
+        status = "Analyzing file ....";
+        notifyListeners();
         Response response = await api.dio.post(
           "$API_HOST/api/extract-data",
           data: formData,
@@ -223,13 +256,26 @@ class WalletConnectProvider with ChangeNotifier {
             },
           ),
         );
-        _uploadStatus = response.statusCode == 200 ? "Upload successful!" : "Upload failed!";
+        status = response.statusCode == 200 ? "Analysis done!" : "Analysis failed!";
+        notifyListeners();
+        // _uploadStatus = response.statusCode == 200 ? "Upload successful!" : "Upload failed!";
         _docData = DocData.fromJson(response.data);
-        log(_docData.toString());
+
+        log("==============================================================================");
+        log(filenameFromAPI(_docData?.category.cast<String>() ?? []));
+        log("==============================================================================");
 
         FormData formData2 = FormData.fromMap({
-          "path": await MultipartFile.fromFile(filePath, filename: path.basename(filePath)),
+          "path": await MultipartFile.fromFile(filePath, filename: filenameFromAPI(_docData?.category.cast<String>() ?? []) + path.extension(filePath)),
         });
+
+        log("==============================================================================");
+        log(path.basenameWithoutExtension(filePath));
+        log(path.extension(filePath));
+        log("==============================================================================");
+
+        status = "Uploading ...";
+        notifyListeners();
         Response response2 = await api.dio.post(
           "$IPFS_HOST/api/v0/add/",
           data: formData2,
@@ -240,9 +286,40 @@ class WalletConnectProvider with ChangeNotifier {
             },
           ),
         );
-        _uploadStatus = response2.statusCode == 200 ? "Upload successful!" : "Upload failed!";
+        status = response2.statusCode == 200 ? "Upload file!" : "Upload failed!";
+        notifyListeners();
+        // _uploadStatus = response2.statusCode == 200 ? "Upload successful!" : "Upload failed!";
         _ipfsData = IpfsData.fromJson(response2.data);
         log(_ipfsData.toString());
+
+        status = "Storing Analysis Data...";
+        notifyListeners();
+        final Map<String, dynamic> payload = {
+          "fileName": filenameFromAPI(_docData?.category.cast<String>() ?? []) + path.extension(filePath),
+          "fileType": getCategory(_docData?.category.cast<String>() ?? []),
+          "userAddress": address,
+          "cid": _ipfsData?.Hash.toString()
+        };
+        Response response3 = await api.dio.post(
+          "$CONTRACT_API/store/",
+          data: payload,
+          options: Options(
+            headers: {
+              "Content-Type": "application/json"
+            },
+          ),
+        );
+
+        // Log the response or inform the user
+        if (response3.statusCode == 200) {
+          log("==============================================================================");
+          log("File stored successfully: ${response.data}");
+          log("==============================================================================");
+        } else {
+          log("Failed to store file: ${response.statusCode} - ${response.data}");
+        }
+        status = response3.statusCode == 200 ? "Analysis Data Stored!" : "Error storing data";
+        notifyListeners();
 
         notifyListeners();
       } catch (e) {
@@ -257,25 +334,48 @@ class WalletConnectProvider with ChangeNotifier {
     }
   }
 
-  ModalConnect? _connectionDetails;
-  ModalError? _errorDetails;
-  ModalNetworkChange? _networkChangeDetails;
+  Future<void> getUserData(String address) async {
+    DioClient api = DioClient();
+    _loading = true;
+    notifyListeners();
+    try {
+      Response response = await api.dio.get(
+        "$CONTRACT_API/data/${address}",
+        options: Options(
+          headers: {
+            "Content-Type": "application/json"
+          },
+        ),
+      );
 
-  WalletConnectProvider() {
-    _initializeListeners();
+      log("==============================================================================");
+      log("==============================================================================");
+      _myData = ContractData.fromJson(response.data);
+      log("==============================================================================");
+      log("==============================================================================");
+      notifyListeners();
+    } catch (e) {
+      _myData = null;
+      log("Error: ${e.toString()}");
+      notifyListeners();
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
   }
-
-  // Getters to expose state variables
-  ModalConnect? get connectionDetails => _connectionDetails;
-  ModalError? get errorDetails => _errorDetails;
-  ModalNetworkChange? get networkChangeDetails => _networkChangeDetails;
 
   int _activeTab = 0;
   int get activeTab => _activeTab;
 
-  Future<void> changeTab(int tab) async { // Define async function
+  Future<void> changeTab(int tab, ReownAppKitModal widget) async { // Define async function
     notifyListeners();
     _activeTab = tab;
+    if(tab == 1){
+      final chainId = widget.selectedChain?.chainId ?? '';
+      final namespace = ReownAppKitModalNetworks.getNamespaceForChainId(chainId);
+      final address = widget.session!.getAddress(namespace);
+      getUserData(address!);
+    }
     notifyListeners();
   }
 

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:reown_appkit/modal/services/analytics_service/analytics_service_singleton.dart';
 
 class DraggableCard extends StatefulWidget {
   final OverlayController overlayController;
@@ -19,7 +18,6 @@ class _DraggableCardState extends State<DraggableCard> {
   @override
   void initState() {
     super.initState();
-    analyticsService.instance.events.listen(_eventsListener);
   }
 
   void _eventsListener(event) {

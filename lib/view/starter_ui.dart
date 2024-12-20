@@ -6,13 +6,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:reown_appkit/modal/models/public/appkit_modal_events.dart';
-import 'package:reown_appkit/modal/widgets/public/appkit_modal_account_button.dart';
-import 'package:reown_appkit/modal/widgets/public/appkit_modal_connect_button.dart';
-import 'package:reown_appkit/modal/widgets/public/appkit_modal_network_select_button.dart';
+import 'package:reown_appkit/reown_appkit.dart';
 import 'package:ulalo/core/global.dart';
 import 'package:ulalo/core/theme.dart';
 import 'package:ulalo/generated/locale_keys.g.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../core/creds.dart';
 
@@ -26,7 +24,7 @@ class StarterUi extends StatefulWidget {
 class _StarterUiState extends State<StarterUi> with WidgetsBindingObserver {
 
   var _appKitModal;
-  late bool isConnected;
+  bool isConnected = false;
 
   @override
   void initState() {
@@ -34,19 +32,50 @@ class _StarterUiState extends State<StarterUi> with WidgetsBindingObserver {
     Future.microtask(() async {
       await _appKitModal.init();
     });
-    setState(() {
-      isConnected = _appKitModal.isConnected;
-    });
+
     super.initState();
     // Register this widget as a lifecycle observer
     WidgetsBinding.instance.addObserver(this);
 
+    Future.delayed(const Duration(seconds: 1)).then((value) {
+      setState(() {
+        isConnected = _appKitModal.isConnected;
+      });
+    });
+
     _appKitModal.onModalConnect.subscribe((ModalConnect? event) {
-      log(event.toString());
+      setState(() {
+        isConnected = _appKitModal.isConnected;
+      });
+      log("On Connect: $event");
     });
 
     _appKitModal.onModalUpdate.subscribe((ModalConnect? event) {
-      log(event.toString());
+      setState(() {
+        isConnected = _appKitModal.isConnected;
+      });
+      log("On Update: $event");
+    });
+
+    _appKitModal.onModalNetworkChange.subscribe((ModalNetworkChange? event) {
+      setState(() {
+        isConnected = _appKitModal.isConnected;
+      });
+      log("On Network Change: $event");
+    });
+
+    _appKitModal.onModalDisconnect.subscribe((ModalDisconnect? event) {
+      setState(() {
+        isConnected = _appKitModal.isConnected;
+      });
+      log("On Disconnect: $event");
+    });
+
+    _appKitModal.onModalError.subscribe((ModalError? event) {
+      setState(() {
+        isConnected = _appKitModal.isConnected;
+      });
+      log("On Error: $event");
     });
   }
 
@@ -62,8 +91,10 @@ class _StarterUiState extends State<StarterUi> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     log("Status ${ _appKitModal.isConnected}");
-    setState(() {
-      isConnected = _appKitModal.isConnected;
+    Future.delayed(const Duration(seconds: 1)).then((value) {
+      setState(() {
+        isConnected = _appKitModal.isConnected;
+      });
     });
   }
 
@@ -106,7 +137,7 @@ class _StarterUiState extends State<StarterUi> with WidgetsBindingObserver {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Visibility(
-                visible: !_appKitModal.isConnected,
+                visible: !isConnected,
                 child: AppKitModalConnectButton(
                   appKit: _appKitModal,
                   custom: SizedBox(
@@ -119,7 +150,7 @@ class _StarterUiState extends State<StarterUi> with WidgetsBindingObserver {
                         ),
                         backgroundColor: Colors.black
                       ),
-                      onPressed: () {
+                      onPressed: () async {
                         _appKitModal.openModalView();
                       },
                       child: const Row(
@@ -135,7 +166,7 @@ class _StarterUiState extends State<StarterUi> with WidgetsBindingObserver {
               SizedBox(
                 width: double.infinity,
                 child: Visibility(
-                  visible: _appKitModal.isConnected,
+                  visible: isConnected,
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.pushNamedAndRemoveUntil(
@@ -164,5 +195,16 @@ class _StarterUiState extends State<StarterUi> with WidgetsBindingObserver {
         ),
       ),
     );
+  }
+
+
+  void testDeepLink() async {
+    const url = 'ulalo://'; // Replace with the full URL scheme if needed, like 'ulalo://path'
+    if (await canLaunchUrlString(url)) {
+      await launchUrlString(url);
+      print("Successfully launched: $url");
+    } else {
+      print("Unable to launch: $url");
+    }
   }
 }
