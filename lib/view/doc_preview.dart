@@ -99,7 +99,7 @@ class _DocPreviewState extends State<DocPreview> {
     log("Start downloading file from IPFS!");
 
     try {
-      final String url = "$IPFS_HOST/ipfs/$cid";
+      final String url = "$CONTRACT_API/fetch/${widget.address}/${widget.cid}";
       final String filename = cid; // Use CID as the filename or customize it
 
       Dio dio = Dio();
@@ -109,7 +109,7 @@ class _DocPreviewState extends State<DocPreview> {
         headers: {
           'Authorization': 'Basic $IPFS_AUTH',
         },
-        responseType: ResponseType.bytes, // Ensure that we get raw bytes
+        responseType: ResponseType.bytes
       );
 
       // Send the GET request
@@ -121,27 +121,13 @@ class _DocPreviewState extends State<DocPreview> {
       // Convert response data to bytes
       var bytes = response.data;
 
-      var decryptedBytes;
-
-      try {
-        // Ensure key is 32 bytes
-        final key = encrypt.Key.fromUtf8(sha256.convert(utf8.encode(widget.address)).toString().substring(0, 32));
-        final iv = encrypt.IV.fromLength(16); // Replace with dynamic IV if used during encryption
-        final encrypter = encrypt.Encrypter(encrypt.AES(key));
-        decryptedBytes = encrypter.decryptBytes(encrypt.Encrypted(bytes), iv: iv);
-      } catch (e) {
-        log('Decryption failed: $e');
-        throw Exception('Decryption failed: $e');
-      }
 
       var dir = await getTemporaryDirectory();
 
       log("Download complete");
       log("${dir.path}/$filename.pdf");
-
-      // Save the PDF file in the temporary directory
       File file = File("${dir.path}/$filename.pdf");
-      await file.writeAsBytes(decryptedBytes, flush: true);
+      await file.writeAsBytes(bytes, flush: true);
 
       // Complete the future with the file
       completer.complete(file);

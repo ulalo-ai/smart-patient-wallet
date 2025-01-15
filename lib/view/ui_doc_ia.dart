@@ -279,7 +279,7 @@ class _UiDocIaState extends State<UiDocIa> with WidgetsBindingObserver {
                                                                               SizedBox(
                                                                                 width: MediaQuery.of(context).size.width * 0.75, // Set the width to 75% of the available width
                                                                                 child: Text(
-                                                                                  userProvider.ipfsData!.Name!,
+                                                                                  userProvider.ipfsData!.fileName!,
                                                                                   maxLines: 1, // Limit to one line
                                                                                   textAlign: TextAlign.center,
                                                                                   overflow: TextOverflow.ellipsis, // Add ellipsis when the text overflows
@@ -290,7 +290,7 @@ class _UiDocIaState extends State<UiDocIa> with WidgetsBindingObserver {
                                                                               SizedBox(
                                                                                 width: MediaQuery.of(context).size.width * 0.75, // Set the width to 75% of the available width
                                                                                 child: Text(
-                                                                                  userProvider.ipfsData!.Hash!,
+                                                                                  userProvider.ipfsData!.cid!,
                                                                                   maxLines: 1, // Limit to one line
                                                                                   overflow: TextOverflow.ellipsis, // Add ellipsis when the text overflows
                                                                                   style: const TextStyle(fontSize: 16, color: Colors.black), // Customize text style
@@ -305,7 +305,7 @@ class _UiDocIaState extends State<UiDocIa> with WidgetsBindingObserver {
                                                                                     onTap: () {
                                                                                       Navigator.push(
                                                                                         context,
-                                                                                        MaterialPageRoute(builder: (context) => DocPreview(cid: userProvider.ipfsData!.Hash!, address: address)),
+                                                                                        MaterialPageRoute(builder: (context) => DocPreview(cid: userProvider.ipfsData!.cid!, address: address)),
                                                                                       );
                                                                                     },
                                                                                     child: Container(
@@ -327,7 +327,7 @@ class _UiDocIaState extends State<UiDocIa> with WidgetsBindingObserver {
                                                                                   verticalSpace(16),
                                                                                   InkWell(
                                                                                     onTap: () {
-                                                                                      Clipboard.setData(ClipboardData(text: userProvider.ipfsData!.Hash!));
+                                                                                      Clipboard.setData(ClipboardData(text: userProvider.ipfsData!.cid!));
                                                                                       ScaffoldMessenger.of(context).showSnackBar(
                                                                                         const SnackBar(content: Text('CID du Document copié')),
                                                                                       );

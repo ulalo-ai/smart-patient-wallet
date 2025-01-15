@@ -77,28 +77,36 @@ DocData messageFromJson(String str) => DocData.fromJson(json.decode(str));
 
 
 class IpfsData {
-  String? Hash;
-  String? Name;
-  String? Size;
+  String? transactionHash;
+  String? userAddress;
+  String? cid;
+  String? fileName;
+  String? fileType;
 
   IpfsData({
-    required this.Hash,
-    required this.Name,
-    required this.Size
+    required this.transactionHash,
+    required this.userAddress,
+    required this.fileName,
+    required this.fileType,
+    required this.cid
   });
 
   factory IpfsData.fromJson(Map<String, dynamic> json) {
     return IpfsData(
-        Name: json["Name"],
-        Hash: json["Hash"],
-        Size: json["Size"]
+        transactionHash: json["transactionHash"],
+        userAddress: json["userAddress"],
+        fileName: json["fileName"],
+        fileType: json["fileType"],
+        cid: json["cid"]
     );
   }
 
   Map<String, dynamic> toJson() => {
-    "Hash": Hash,
-    "Size": Size,
-    "Name": Name
+    "transactionHash": transactionHash,
+    "userAddress": userAddress,
+    "fileName": fileName,
+    "fileType": fileType,
+    "cid": cid
   };
 }
 
@@ -260,58 +268,14 @@ class WalletConnectProvider with ChangeNotifier {
         // _uploadStatus = response.statusCode == 200 ? "Upload successful!" : "Upload failed!";
         _docData = DocData.fromJson(response.data);
 
-
-        // ENCRYPTION
-        final password = address; // Secure password for encryption
-        final iv = encrypt.IV.fromLength(16); // Initialization vector
-        final key = encrypt.Key.fromUtf8(sha256.convert(utf8.encode(password)).toString().substring(0, 32));
-        final encrypter = encrypt.Encrypter(encrypt.AES(key));
-
-        final file = File(filePath);
-        final fileBytes = await file.readAsBytes();
-        final encryptedBytes = encrypter.encryptBytes(fileBytes, iv: iv).bytes;
-        final tempDir = Directory.systemTemp;
-        final encryptedFilePath = path.join(tempDir.path, '${path.basename(filePath)}.enc');
-        final encryptedFile = File(encryptedFilePath);
-        await encryptedFile.writeAsBytes(encryptedBytes);
-
-        // FormData formData2 = FormData.fromMap({
-        //   "path": await MultipartFile.fromFile(filePath, filename: filenameFromAPI(_docData?.category.cast<String>() ?? []) + path.extension(filePath)),
-        // });
-        final formData2 = FormData.fromMap({
-          "path": await MultipartFile.fromFile(
-            encryptedFilePath,
-            filename: path.basename(encryptedFilePath),
-          ),
-        });
-
-
-        status = "Uploading ...";
-        notifyListeners();
-        Response response2 = await api.dio.post(
-          "$IPFS_HOST/api/v0/add/",
-          data: formData2,
-          options: Options(
-            headers: {
-              "Content-Type": "multipart/form-data",
-              "Authorization": "Basic $IPFS_AUTH"
-            },
-          ),
-        );
-        status = response2.statusCode == 200 ? "Upload file!" : "Upload failed!";
-        notifyListeners();
-        // _uploadStatus = response2.statusCode == 200 ? "Upload successful!" : "Upload failed!";
-        _ipfsData = IpfsData.fromJson(response2.data);
-        log(_ipfsData.toString());
-
-        status = "Storing Analysis Data...";
-        notifyListeners();
-        final Map<String, dynamic> payload = {
-          "fileName": filenameFromAPI(_docData?.category.cast<String>() ?? []) + path.extension(filePath),
+        FormData payload = FormData.fromMap({
           "fileType": getCategory(_docData?.category.cast<String>() ?? []),
           "userAddress": address,
-          "cid": _ipfsData?.Hash.toString()
-        };
+          "file": await MultipartFile.fromFile(filePath, filename: filenameFromAPI(_docData?.category.cast<String>() ?? []) + path.extension(filePath)),
+        });
+
+        status = "Processing & Storing Analysis Data...";
+        notifyListeners();
         Response response3 = await api.dio.post(
           "$CONTRACT_API/store/",
           data: payload,
@@ -321,16 +285,8 @@ class WalletConnectProvider with ChangeNotifier {
             },
           ),
         );
-
-        // Log the response or inform the user
-        if (response3.statusCode == 200) {
-          // log("==============================================================================");
-          // log("File stored successfully: ${response.data}");
-          // log("==============================================================================");
-        } else {
-          // log("Failed to store file: ${response.statusCode} - ${response.data}");
-        }
         status = response3.statusCode == 200 ? "Analysis Data Stored!" : "Error storing data";
+        _ipfsData = IpfsData.fromJson(response3.data);
         notifyListeners();
       } catch (e) {
         _docData = null;
