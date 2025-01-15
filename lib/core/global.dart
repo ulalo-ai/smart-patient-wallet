@@ -128,11 +128,11 @@ extension EmptySpace on num {
   Widget get pW => SizedBox(width: toDouble());
 }
 
-const IPFS_HOST = "https://u0xyynyqx4-u0y40plpb7-ipfs.us0-aws.kaleido.io";
+const IPFS_HOST = "https://u0sssslt0j-u0u76bxzeu-ipfs.us0-aws.kaleido.io";
 
-const IPFS_API = "https://u0xyynyqx4-u0y40plpb7-ipfs.us0-aws.kaleido.io/ipfs/Qmbo8PfVs4WWanjFPMboP8Gx5hunN1Tn5kLMmhvB3L1LVd";
+const IPFS_API = "https://u0sssslt0j-u0u76bxzeu-ipfs.us0-aws.kaleido.io/ipfs/Qmbo8PfVs4WWanjFPMboP8Gx5hunN1Tn5kLMmhvB3L1LVd";
 
-const IPFS_AUTH = "dTBwdHZleHR1bTpmVl9XZnoycUVNNFUxdWxwb3FTZDk4WDZ4MzlXRGh0RkdzSXo2SHM5WVBr";
+const IPFS_AUTH = "dTBkNXBvY2M5ZjpkMklDd0QwLUZLalBmb3RuZHdQQ1FadTl4M1FZell6Q205cDZZNnYweTZr";
 
 const CONTRACT_API = "http://54.234.69.252:3000";
 

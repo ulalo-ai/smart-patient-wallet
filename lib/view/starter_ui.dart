@@ -28,69 +28,74 @@ class _StarterUiState extends State<StarterUi> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    _appKitModal = web3Credentials(context);
-    Future.microtask(() async {
-      await _appKitModal.init();
-    });
-
     super.initState();
-    // Register this widget as a lifecycle observer
     WidgetsBinding.instance.addObserver(this);
 
-    Future.delayed(const Duration(seconds: 1)).then((value) {
-      setState(() {
-        isConnected = _appKitModal.isConnected;
-      });
-    });
+    _appKitModal = web3Credentials(context);
 
-    _appKitModal.onModalConnect.subscribe((ModalConnect? event) {
-      setState(() {
-        isConnected = _appKitModal.isConnected;
-      });
-      log("On Connect: $event");
-    });
+    // Initialize the AppKitModal asynchronously and update the state
+    Future.microtask(() async {
+      await _appKitModal.init();
 
-    _appKitModal.onModalUpdate.subscribe((ModalConnect? event) {
+      // Update the connection status after initialization
       setState(() {
         isConnected = _appKitModal.isConnected;
       });
-      log("On Update: $event");
-    });
 
-    _appKitModal.onModalNetworkChange.subscribe((ModalNetworkChange? event) {
-      setState(() {
-        isConnected = _appKitModal.isConnected;
+      // Subscribe to events after initialization
+      _appKitModal.onModalConnect.subscribe((ModalConnect? event) {
+        setState(() {
+          isConnected = _appKitModal.isConnected;
+        });
+        log("On Connect: $event");
       });
-      log("On Network Change: $event");
-    });
 
-    _appKitModal.onModalDisconnect.subscribe((ModalDisconnect? event) {
-      setState(() {
-        isConnected = _appKitModal.isConnected;
+      _appKitModal.onModalUpdate.subscribe((ModalConnect? event) {
+        setState(() {
+          isConnected = _appKitModal.isConnected;
+        });
+        log("On Update: $event");
       });
-      log("On Disconnect: $event");
-    });
 
-    _appKitModal.onModalError.subscribe((ModalError? event) {
-      setState(() {
-        isConnected = _appKitModal.isConnected;
+      _appKitModal.onModalNetworkChange.subscribe((ModalNetworkChange? event) {
+        setState(() {
+          isConnected = _appKitModal.isConnected;
+        });
+        log("On Network Change: $event");
       });
-      log("On Error: $event");
+
+      _appKitModal.onModalDisconnect.subscribe((ModalDisconnect? event) {
+        setState(() {
+          isConnected = _appKitModal.isConnected;
+        });
+        log("On Disconnect: $event");
+      });
+
+      _appKitModal.onModalError.subscribe((ModalError? event) {
+        setState(() {
+          isConnected = _appKitModal.isConnected;
+        });
+        log("On Error: $event");
+      });
+
+      // Ensure state is updated after a short delay (optional fallback)
+      Future.delayed(const Duration(seconds: 2)).then((_) {
+        setState(() {
+          isConnected = _appKitModal.isConnected;
+        });
+      });
     });
   }
 
   @override
   void dispose() {
-    // Remove the lifecycle observer when the widget is disposed
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
-  // This method is called when the app gains or loses focus
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    log("Status ${ _appKitModal.isConnected}");
     Future.delayed(const Duration(seconds: 1)).then((value) {
       setState(() {
         isConnected = _appKitModal.isConnected;

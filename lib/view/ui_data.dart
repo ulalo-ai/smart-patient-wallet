@@ -87,9 +87,12 @@ class _UiDataState extends State<UiData> with WidgetsBindingObserver {
                                         .tr()),
                                 trailing: IconButton(
                                     onPressed: () {
+                                      final chainId = widget.appKitModal.selectedChain?.chainId ?? '';
+                                      final namespace = ReownAppKitModalNetworks.getNamespaceForChainId(chainId);
+                                      final address = widget.appKitModal.session!.getAddress(namespace);
                                       Navigator.push(
                                         context,
-                                        MaterialPageRoute(builder: (context) => DocPreview(cid: userProvider.myData!.files![index][0])),
+                                        MaterialPageRoute(builder: (context) => DocPreview(cid: userProvider.myData!.files![index][0], address: address!,)),
                                       );
                                     },
                                     icon: const Icon(

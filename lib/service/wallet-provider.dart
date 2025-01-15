@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-import 'package:crypto/crypto.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as img;
 import 'package:pdf/widgets.dart' as pw;
@@ -13,10 +12,8 @@ import 'package:reown_appkit/appkit_modal.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
-import 'package:encrypt/encrypt.dart' as encrypt;
 
-const API_HOST = "http://54.234.69.252:3000";
-// const API_HOST = "https://webappapiulaloview.azurewebsites.net";
+const API_HOST = "https://webappapiulaloview.azurewebsites.net";
 
 class DioClient {
   static final Dio _dio = Dio(BaseOptions(
@@ -260,31 +257,18 @@ class WalletConnectProvider with ChangeNotifier {
         // _uploadStatus = response.statusCode == 200 ? "Upload successful!" : "Upload failed!";
         _docData = DocData.fromJson(response.data);
 
+        log("==============================================================================");
+        log(filenameFromAPI(_docData?.category.cast<String>() ?? []));
+        log("==============================================================================");
 
-        // ENCRYPTION
-        final password = address; // Secure password for encryption
-        final iv = encrypt.IV.fromLength(16); // Initialization vector
-        final key = encrypt.Key.fromUtf8(sha256.convert(utf8.encode(password)).toString().substring(0, 32));
-        final encrypter = encrypt.Encrypter(encrypt.AES(key));
-
-        final file = File(filePath);
-        final fileBytes = await file.readAsBytes();
-        final encryptedBytes = encrypter.encryptBytes(fileBytes, iv: iv).bytes;
-        final tempDir = Directory.systemTemp;
-        final encryptedFilePath = path.join(tempDir.path, '${path.basename(filePath)}.enc');
-        final encryptedFile = File(encryptedFilePath);
-        await encryptedFile.writeAsBytes(encryptedBytes);
-
-        // FormData formData2 = FormData.fromMap({
-        //   "path": await MultipartFile.fromFile(filePath, filename: filenameFromAPI(_docData?.category.cast<String>() ?? []) + path.extension(filePath)),
-        // });
-        final formData2 = FormData.fromMap({
-          "path": await MultipartFile.fromFile(
-            encryptedFilePath,
-            filename: path.basename(encryptedFilePath),
-          ),
+        FormData formData2 = FormData.fromMap({
+          "path": await MultipartFile.fromFile(filePath, filename: filenameFromAPI(_docData?.category.cast<String>() ?? []) + path.extension(filePath)),
         });
 
+        log("==============================================================================");
+        log(path.basenameWithoutExtension(filePath));
+        log(path.extension(filePath));
+        log("==============================================================================");
 
         status = "Uploading ...";
         notifyListeners();
@@ -324,11 +308,11 @@ class WalletConnectProvider with ChangeNotifier {
 
         // Log the response or inform the user
         if (response3.statusCode == 200) {
-          // log("==============================================================================");
-          // log("File stored successfully: ${response.data}");
-          // log("==============================================================================");
+          log("==============================================================================");
+          log("File stored successfully: ${response.data}");
+          log("==============================================================================");
         } else {
-          // log("Failed to store file: ${response.statusCode} - ${response.data}");
+          log("Failed to store file: ${response.statusCode} - ${response.data}");
         }
         status = response3.statusCode == 200 ? "Analysis Data Stored!" : "Error storing data";
         notifyListeners();
@@ -358,15 +342,15 @@ class WalletConnectProvider with ChangeNotifier {
         ),
       );
 
-      // log("==============================================================================");
-      // log("==============================================================================");
+      log("==============================================================================");
+      log("==============================================================================");
       _myData = ContractData.fromJson(response.data);
-      // log("==============================================================================");
-      // log("==============================================================================");
+      log("==============================================================================");
+      log("==============================================================================");
       notifyListeners();
     } catch (e) {
       _myData = null;
-      // log("Error: ${e.toString()}");
+      log("Error: ${e.toString()}");
       notifyListeners();
     } finally {
       _loading = false;

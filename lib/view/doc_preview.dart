@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 // import 'package:easy_pdf_viewer/easy_pdf_viewer.dart';
 import 'package:share_plus/share_plus.dart';
@@ -11,16 +13,17 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-// #docregion platform_imports
+import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 import '../core/global.dart';
 
 class DocPreview extends StatefulWidget {
-  const DocPreview({super.key, required this.cid});
+  const DocPreview({super.key, required this.cid, required this.address});
 
   final String cid;
+  final String address;
 
   @override
   _DocPreviewState createState() => _DocPreviewState();
@@ -71,7 +74,25 @@ class _DocPreviewState extends State<DocPreview> {
   String pathPDF = "";
 
   bool _isLoading = true;
-  // late PDFDocument document;
+
+  File? _pdfFile;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPdf();
+  }
+
+  Future<void> _loadPdf() async {
+    try {
+      final file = await createFileOfPdfUrl(widget.cid);
+      setState(() {
+        _pdfFile = file; // Assign the decrypted file
+      });
+    } catch (e) {
+      log('Error loading PDF: $e');
+    }
+  }
 
   Future<File> createFileOfPdfUrl(String cid) async {
     Completer<File> completer = Completer();
@@ -99,6 +120,20 @@ class _DocPreviewState extends State<DocPreview> {
 
       // Convert response data to bytes
       var bytes = response.data;
+
+      var decryptedBytes;
+
+      try {
+        // Ensure key is 32 bytes
+        final key = encrypt.Key.fromUtf8(sha256.convert(utf8.encode(widget.address)).toString().substring(0, 32));
+        final iv = encrypt.IV.fromLength(16); // Replace with dynamic IV if used during encryption
+        final encrypter = encrypt.Encrypter(encrypt.AES(key));
+        decryptedBytes = encrypter.decryptBytes(encrypt.Encrypted(bytes), iv: iv);
+      } catch (e) {
+        log('Decryption failed: $e');
+        throw Exception('Decryption failed: $e');
+      }
+
       var dir = await getTemporaryDirectory();
 
       log("Download complete");
@@ -106,7 +141,7 @@ class _DocPreviewState extends State<DocPreview> {
 
       // Save the PDF file in the temporary directory
       File file = File("${dir.path}/$filename.pdf");
-      await file.writeAsBytes(bytes, flush: true);
+      await file.writeAsBytes(decryptedBytes, flush: true);
 
       // Complete the future with the file
       completer.complete(file);
@@ -117,23 +152,6 @@ class _DocPreviewState extends State<DocPreview> {
 
     return completer.future;
   }
-
-  @override
-  void initState() {
-    super.initState();
-    // createFileOfPdfUrl(widget.cid).then((f) {
-    //   setState(() {
-    //     pathPDF = f.path;
-    //   });
-    //   loadDocument();
-    // });
-  }
-
-  // loadDocument() async {
-  //   File file  = File(pathPDF);
-  //   document = await PDFDocument.fromFile(file);
-  //   setState(() => _isLoading = false);
-  // }
 
   Future<void> shareFile() async {
     try {
@@ -169,10 +187,9 @@ class _DocPreviewState extends State<DocPreview> {
           const SizedBox(width: 8),
         ],
       ),
-      body: Center(
-          child: _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : SfPdfViewer.network("$IPFS_HOST/ipfs/${widget.cid}")),
+      body: _pdfFile == null
+          ? const Center(child: CircularProgressIndicator())
+          : SfPdfViewer.file(_pdfFile!),
     );
   }
 }

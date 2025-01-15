@@ -305,7 +305,7 @@ class _UiDocIaState extends State<UiDocIa> with WidgetsBindingObserver {
                                                                                     onTap: () {
                                                                                       Navigator.push(
                                                                                         context,
-                                                                                        MaterialPageRoute(builder: (context) => DocPreview(cid: userProvider.ipfsData!.Hash!)),
+                                                                                        MaterialPageRoute(builder: (context) => DocPreview(cid: userProvider.ipfsData!.Hash!, address: address)),
                                                                                       );
                                                                                     },
                                                                                     child: Container(

@@ -118,23 +118,6 @@ class _DocPreviewState extends State<DocPreview> {
     return completer.future;
   }
 
-  @override
-  void initState() {
-    super.initState();
-    // createFileOfPdfUrl(widget.cid).then((f) {
-    //   setState(() {
-    //     pathPDF = f.path;
-    //   });
-    //   loadDocument();
-    // });
-  }
-
-  // loadDocument() async {
-  //   File file  = File(pathPDF);
-  //   document = await PDFDocument.fromFile(file);
-  //   setState(() => _isLoading = false);
-  // }
-
   Future<void> shareFile() async {
     try {
       await Share.shareXFiles([XFile(pathPDF)], text: 'Check out this file!');
